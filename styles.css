@@ -1,0 +1,131 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 2.5em;
+}
+
+.game-info {
+    margin-bottom: 20px;
+}
+
+.game-info p {
+    color: #666;
+    font-size: 1.1em;
+    margin: 8px 0;
+}
+
+#currentPlayer {
+    font-weight: bold;
+    color: #667eea;
+    font-size: 1.2em;
+}
+
+#status {
+    font-weight: bold;
+    color: #764ba2;
+    font-size: 1.1em;
+    min-height: 24px;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 8px;
+    margin: 30px auto;
+    padding: 10px;
+    background: #667eea;
+    border-radius: 8px;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    background: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 2.5em;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cell:hover {
+    background: #f0f0f0;
+    transform: scale(0.95);
+}
+
+.cell.x {
+    color: #667eea;
+}
+
+.cell.o {
+    color: #764ba2;
+}
+
+.reset-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    font-weight: bold;
+}
+
+.reset-btn:hover {
+    transform: scale(1.05);
+}
+
+.reset-btn:active {
+    transform: scale(0.95);
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    .board {
+        grid-template-columns: repeat(3, 80px);
+        grid-gap: 5px;
+    }
+
+    .cell {
+        width: 80px;
+        height: 80px;
+        font-size: 2em;
+    }
+}
