@@ -35,11 +35,14 @@ function generateBoard() {
 function generateWinningConditions() {
     winningConditions = [];
     
+    // Determine winning line length
+    const winLength = boardSize === 3 ? 3 : 4;
+    
     // Horizontal lines
     for (let row = 0; row < boardSize; row++) {
-        for (let col = 0; col <= boardSize - 4; col++) {
+        for (let col = 0; col <= boardSize - winLength; col++) {
             const line = [];
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < winLength; i++) {
                 line.push(row * boardSize + col + i);
             }
             winningConditions.push(line);
@@ -48,9 +51,9 @@ function generateWinningConditions() {
     
     // Vertical lines
     for (let col = 0; col < boardSize; col++) {
-        for (let row = 0; row <= boardSize - 4; row++) {
+        for (let row = 0; row <= boardSize - winLength; row++) {
             const line = [];
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < winLength; i++) {
                 line.push((row + i) * boardSize + col);
             }
             winningConditions.push(line);
@@ -58,10 +61,10 @@ function generateWinningConditions() {
     }
     
     // Diagonal lines (top-left to bottom-right)
-    for (let row = 0; row <= boardSize - 4; row++) {
-        for (let col = 0; col <= boardSize - 4; col++) {
+    for (let row = 0; row <= boardSize - winLength; row++) {
+        for (let col = 0; col <= boardSize - winLength; col++) {
             const line = [];
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < winLength; i++) {
                 line.push((row + i) * boardSize + (col + i));
             }
             winningConditions.push(line);
@@ -69,10 +72,10 @@ function generateWinningConditions() {
     }
     
     // Diagonal lines (top-right to bottom-left)
-    for (let row = 0; row <= boardSize - 4; row++) {
-        for (let col = 3; col < boardSize; col++) {
+    for (let row = 0; row <= boardSize - winLength; row++) {
+        for (let col = winLength - 1; col < boardSize; col++) {
             const line = [];
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < winLength; i++) {
                 line.push((row + i) * boardSize + (col - i));
             }
             winningConditions.push(line);
