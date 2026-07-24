@@ -1,30 +1,105 @@
-let gameBoard = ['', '', '', '', '', '', '', '', ''];
+let gameBoard = [];
+let boardSize = 3;
 let playerSymbol = 'X';
 let computerSymbol = 'O';
 let gameActive = true;
 
-const winningConditions = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6]
-];
-
-const cells = document.querySelectorAll('.cell');
+let winningConditions = [];
+let cells = [];
 const statusDisplay = document.getElementById('status');
+const boardElement = document.getElementById('board');
 
-// Add click event listeners to all cells
-cells.forEach(cell => {
-    cell.addEventListener('click', handlePlayerMove);
-});
+// Initialize game
+function initializeGame() {
+    generateBoard();
+    generateWinningConditions();
+}
+
+function generateBoard() {
+    gameBoard = Array(boardSize * boardSize).fill('');
+    boardElement.innerHTML = '';
+    boardElement.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
+    
+    for (let i = 0; i < boardSize * boardSize; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.setAttribute('data-index', i);
+        cell.addEventListener('click', handlePlayerMove);
+        boardElement.appendChild(cell);
+    }
+    
+    cells = document.querySelectorAll('.cell');
+}
+
+function generateWinningConditions() {
+    winningConditions = [];
+    
+    // Horizontal lines
+    for (let row = 0; row < boardSize; row++) {
+        for (let col = 0; col <= boardSize - 4; col++) {
+            const line = [];
+            for (let i = 0; i < 4; i++) {
+                line.push(row * boardSize + col + i);
+            }
+            winningConditions.push(line);
+        }
+    }
+    
+    // Vertical lines
+    for (let col = 0; col < boardSize; col++) {
+        for (let row = 0; row <= boardSize - 4; row++) {
+            const line = [];
+            for (let i = 0; i < 4; i++) {
+                line.push((row + i) * boardSize + col);
+            }
+            winningConditions.push(line);
+        }
+    }
+    
+    // Diagonal lines (top-left to bottom-right)
+    for (let row = 0; row <= boardSize - 4; row++) {
+        for (let col = 0; col <= boardSize - 4; col++) {
+            const line = [];
+            for (let i = 0; i < 4; i++) {
+                line.push((row + i) * boardSize + (col + i));
+            }
+            winningConditions.push(line);
+        }
+    }
+    
+    // Diagonal lines (top-right to bottom-left)
+    for (let row = 0; row <= boardSize - 4; row++) {
+        for (let col = 3; col < boardSize; col++) {
+            const line = [];
+            for (let i = 0; i < 4; i++) {
+                line.push((row + i) * boardSize + (col - i));
+            }
+            winningConditions.push(line);
+        }
+    }
+}
+
+function setGameMode(size) {
+    boardSize = size;
+    gameBoard = Array(boardSize * boardSize).fill('');
+    gameActive = true;
+    
+    // Update button states
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    initializeGame();
+    resetGame();
+}
+
+// Initialize on page load
+window.addEventListener('DOMContentLoaded', initializeGame);
 
 function handlePlayerMove(event) {
     const cell = event.target;
-    const index = cell.getAttribute('data-index');
+    const index = parseInt(cell.getAttribute('data-index'));
 
     // Check if cell is already filled or game is over
     if (gameBoard[index] !== '' || !gameActive) {
@@ -127,16 +202,18 @@ function minimax(board, depth, isMaximizing) {
 function evaluateBoard(board) {
     // Check if computer wins
     for (let i = 0; i < winningConditions.length; i++) {
-        const [a, b, c] = winningConditions[i];
-        if (board[a] === computerSymbol && board[b] === computerSymbol && board[c] === computerSymbol) {
+        const condition = winningConditions[i];
+        let allComputer = condition.every(index => board[index] === computerSymbol);
+        if (allComputer) {
             return 10;
         }
     }
 
     // Check if player wins
     for (let i = 0; i < winningConditions.length; i++) {
-        const [a, b, c] = winningConditions[i];
-        if (board[a] === playerSymbol && board[b] === playerSymbol && board[c] === playerSymbol) {
+        const condition = winningConditions[i];
+        let allPlayer = condition.every(index => board[index] === playerSymbol);
+        if (allPlayer) {
             return -10;
         }
     }
@@ -147,8 +224,10 @@ function evaluateBoard(board) {
 function checkGameStatus(lastPlayer) {
     // Check winning conditions
     for (let i = 0; i < winningConditions.length; i++) {
-        const [a, b, c] = winningConditions[i];
-        if (gameBoard[a] === lastPlayer && gameBoard[b] === lastPlayer && gameBoard[c] === lastPlayer) {
+        const condition = winningConditions[i];
+        let allMatch = condition.every(index => gameBoard[index] === lastPlayer);
+        
+        if (allMatch) {
             if (lastPlayer === playerSymbol) {
                 statusDisplay.textContent = '🎉 Rufus Wins!';
             } else {
@@ -184,7 +263,7 @@ function disableAllCells() {
 }
 
 function resetGame() {
-    gameBoard = ['', '', '', '', '', '', '', '', ''];
+    gameBoard = Array(boardSize * boardSize).fill('');
     gameActive = true;
     statusDisplay.textContent = 'Rufus\'s turn...';
 
