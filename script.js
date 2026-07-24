@@ -3,6 +3,7 @@ let boardSize = 3;
 let playerSymbol = 'X';
 let computerSymbol = 'O';
 let gameActive = true;
+let maxDepth = 6;
 
 let winningConditions = [];
 let cells = [];
@@ -83,6 +84,7 @@ function setGameMode(size) {
     boardSize = size;
     gameBoard = Array(boardSize * boardSize).fill('');
     gameActive = true;
+    maxDepth = size === 3 ? 9 : 3;
     
     // Update button states
     document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -125,11 +127,10 @@ function handlePlayerMove(event) {
     setTimeout(() => {
         makeComputerMove();
         gameActive = true;
-    }, 800);
+    }, 500);
 }
 
 function makeComputerMove() {
-    // AI uses minimax algorithm for best moves
     const bestMove = findBestMove();
 
     if (bestMove !== -1) {
@@ -146,7 +147,12 @@ function makeComputerMove() {
 }
 
 function findBestMove() {
-    // Minimax algorithm
+    // For 4x4, use fast heuristic approach
+    if (boardSize === 4) {
+        return findBestMoveHeuristic();
+    }
+    
+    // For 3x3, use minimax
     let bestScore = -Infinity;
     let bestMove = -1;
 
@@ -166,13 +172,81 @@ function findBestMove() {
     return bestMove;
 }
 
+function findBestMoveHeuristic() {
+    // First, try to win
+    for (let i = 0; i < gameBoard.length; i++) {
+        if (gameBoard[i] === '') {
+            gameBoard[i] = computerSymbol;
+            if (hasWon(computerSymbol)) {
+                gameBoard[i] = '';
+                return i;
+            }
+            gameBoard[i] = '';
+        }
+    }
+
+    // Second, block player
+    for (let i = 0; i < gameBoard.length; i++) {
+        if (gameBoard[i] === '') {
+            gameBoard[i] = playerSymbol;
+            if (hasWon(playerSymbol)) {
+                gameBoard[i] = '';
+                return i;
+            }
+            gameBoard[i] = '';
+        }
+    }
+
+    // Third, pick best position
+    let bestScore = -Infinity;
+    let bestMove = -1;
+
+    for (let i = 0; i < gameBoard.length; i++) {
+        if (gameBoard[i] === '') {
+            const score = countAdjacent(i, computerSymbol) * 10 + countAdjacent(i, playerSymbol) * 5;
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = i;
+            }
+        }
+    }
+
+    return bestMove !== -1 ? bestMove : gameBoard.findIndex(cell => cell === '');
+}
+
+function hasWon(symbol) {
+    for (let condition of winningConditions) {
+        if (condition.every(index => gameBoard[index] === symbol)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function countAdjacent(index, symbol) {
+    let count = 0;
+    const neighbors = [
+        index - 1, index + 1, // horizontal
+        index - boardSize, index + boardSize, // vertical
+        index - boardSize - 1, index + boardSize + 1, // diagonal
+        index - boardSize + 1, index + boardSize - 1 // anti-diagonal
+    ];
+    
+    for (let neighbor of neighbors) {
+        if (neighbor >= 0 && neighbor < gameBoard.length && gameBoard[neighbor] === symbol) {
+            count++;
+        }
+    }
+    return count;
+}
+
 function minimax(board, depth, isMaximizing) {
     let score = evaluateBoard(board);
 
-    // Terminal states
     if (score === 10) return score - depth;
     if (score === -10) return score + depth;
     if (!board.includes('')) return 0;
+    if (depth >= maxDepth) return 0;
 
     if (isMaximizing) {
         let bestScore = -Infinity;
@@ -201,19 +275,15 @@ function minimax(board, depth, isMaximizing) {
 
 function evaluateBoard(board) {
     // Check if computer wins
-    for (let i = 0; i < winningConditions.length; i++) {
-        const condition = winningConditions[i];
-        let allComputer = condition.every(index => board[index] === computerSymbol);
-        if (allComputer) {
+    for (let condition of winningConditions) {
+        if (condition.every(index => board[index] === computerSymbol)) {
             return 10;
         }
     }
 
     // Check if player wins
-    for (let i = 0; i < winningConditions.length; i++) {
-        const condition = winningConditions[i];
-        let allPlayer = condition.every(index => board[index] === playerSymbol);
-        if (allPlayer) {
+    for (let condition of winningConditions) {
+        if (condition.every(index => board[index] === playerSymbol)) {
             return -10;
         }
     }
@@ -223,11 +293,8 @@ function evaluateBoard(board) {
 
 function checkGameStatus(lastPlayer) {
     // Check winning conditions
-    for (let i = 0; i < winningConditions.length; i++) {
-        const condition = winningConditions[i];
-        let allMatch = condition.every(index => gameBoard[index] === lastPlayer);
-        
-        if (allMatch) {
+    for (let condition of winningConditions) {
+        if (condition.every(index => gameBoard[index] === lastPlayer)) {
             if (lastPlayer === playerSymbol) {
                 statusDisplay.textContent = '🎉 Rufus Wins!';
             } else {
