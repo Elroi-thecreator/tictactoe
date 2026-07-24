@@ -38,6 +38,7 @@ function handlePlayerMove(event) {
 
     // Check game status after player move
     if (checkGameStatus(playerSymbol)) {
+        disableAllCells();
         return;
     }
 
@@ -63,7 +64,9 @@ function makeComputerMove() {
         cell.classList.add(computerSymbol.toLowerCase());
 
         // Check game status after computer move
-        checkGameStatus(computerSymbol);
+        if (checkGameStatus(computerSymbol)) {
+            disableAllCells();
+        }
     }
 }
 
@@ -147,7 +150,7 @@ function checkGameStatus(lastPlayer) {
         const [a, b, c] = winningConditions[i];
         if (gameBoard[a] === lastPlayer && gameBoard[b] === lastPlayer && gameBoard[c] === lastPlayer) {
             if (lastPlayer === playerSymbol) {
-                statusDisplay.textContent = '🎉 You Win!';
+                statusDisplay.textContent = '🎉 Rufus Wins!';
             } else {
                 statusDisplay.textContent = '😢 Computer Wins!';
             }
@@ -167,19 +170,27 @@ function checkGameStatus(lastPlayer) {
     if (lastPlayer === playerSymbol) {
         statusDisplay.textContent = '🤖 Computer\'s turn...';
     } else {
-        statusDisplay.textContent = '��� Your turn...';
+        statusDisplay.textContent = '🎮 Rufus\'s turn...';
     }
 
     return false;
 }
 
+function disableAllCells() {
+    cells.forEach(cell => {
+        cell.classList.add('disabled');
+        cell.style.pointerEvents = 'none';
+    });
+}
+
 function resetGame() {
     gameBoard = ['', '', '', '', '', '', '', '', ''];
     gameActive = true;
-    statusDisplay.textContent = 'Your turn...';
+    statusDisplay.textContent = 'Rufus\'s turn...';
 
     cells.forEach(cell => {
         cell.textContent = '';
-        cell.classList.remove('x', 'o');
+        cell.classList.remove('x', 'o', 'disabled');
+        cell.style.pointerEvents = 'auto';
     });
 }
