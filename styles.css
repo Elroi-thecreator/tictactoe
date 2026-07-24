@@ -97,6 +97,16 @@ h1 {
     transform: scale(0.9);
 }
 
+.cell.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.cell.disabled:hover {
+    background: white;
+    transform: scale(1);
+}
+
 .cell.x {
     color: #667eea;
 }
